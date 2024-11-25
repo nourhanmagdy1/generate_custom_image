@@ -41,7 +41,7 @@ def generate_image_interface(request):
     return render(request, 'generate_image.html')
 
 
-def generate_image_from_diffusion(user_prompt, token="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"):
+def generate_image_from_diffusion(user_prompt, token=""):
     """
     Generates an image from a text prompt using a diffusion-based model.
 
