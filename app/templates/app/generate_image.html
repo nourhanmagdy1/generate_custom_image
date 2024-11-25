@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Your Customized Image</title>
+    <style>
+        /* Set the gradient background */
+        body {
+            background: linear-gradient(to bottom, #007BFF, #00FFB2); /* Blue to Mint */
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+
+        /* Center the form and result */
+        .container {
+            display: flex; /* Flexbox layout */
+            align-items: stretch;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            max-width: 1000px; /* Increased card width */
+            width: 90%; /* Responsive width */
+            height: 450px;
+        }
+
+        .form-container {
+            text-align: center;
+            padding: 30px;
+            flex: 1;
+        }
+
+        h1 {
+            font-size: 23px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+
+        input[type="text"], input[type="file"] {
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            width: 80%;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+            background-color: #f9f9f9;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #32CD32; /* Lime Green */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #228B22; /* Darker Green */
+        }
+
+        button:disabled {
+            background-color: #6c757d; /* Gray color when disabled */
+            cursor: not-allowed;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        .image-container {
+            flex: 1; /* Allow equal width for image section */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        #generatedImage {
+            max-height: 90%;
+            max-width: 90%;
+            display: none;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Form Section -->
+        <div class="form-container">
+            <h1>Generate your custom image</h1>
+            <form id="uploadForm" action="{% url 'generate_image' %}" method="post">
+                {% csrf_token %}
+                <input type="text" id="user_prompr" name="user_prompr" placeholder="Enter your text you need to generate here" required>
+                <input type="text" id="image_path" name="image_path" placeholder="Enter your image path">
+                <button id="submitBtn" type="submit">Generate</button>
+            </form>
+            <div id="result"></div>
+        </div>
+        
+        <div class="image-container">
+            <img id="generatedImage" src="" alt="Generated Image">
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').onsubmit = async function(event) {
+            event.preventDefault();
+            const form = event.target;
+            const submitButton = document.getElementById('submitBtn');
+            submitButton.disabled = true;
+
+            try {
+                const user_prompr = document.getElementById('user_prompr').value;
+                const image_path = document.getElementById('image_path').value;
+
+                const formData = new FormData();
+                if (user_prompr) {
+                    formData.append("user_prompr", user_prompr);
+                }
+                if (image_path) {
+                    formData.append("image_path", image_path);
+                }
+
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    document.getElementById('result').textContent = "Error: " + data.error;
+                } else {
+                    const base64Image = data.image;
+                    const imgElement = document.getElementById('generatedImage');
+                    imgElement.src = "data:image/png;base64," + base64Image;
+                    imgElement.style.display = 'block';
+                    document.getElementById('result').style.display = 'none';
+                }
+            } catch (error) {
+                document.getElementById('result').textContent = "Error: " + error.message;
+            } finally {
+                submitButton.disabled = false;
+            }
+        };
+    </script>
+</body>
+</html>
