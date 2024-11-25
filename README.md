@@ -86,10 +86,3 @@ print(response.json())  # The response contains the Base64-encoded image or an e
 
 - Update the diffusion model in `generate_image_from_diffusion` if required.
 - Integrate additional AI models for more customization options.
-- Enhance error handling for specific cases like missing or corrupt image files.
-
-## Future Enhancements
-
-- Add a web interface for easier interaction.
-- Support for multiple face swaps in a single request.
-- Option to fine-tune the generated image with style presets.
